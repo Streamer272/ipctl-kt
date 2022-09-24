@@ -1,7 +1,10 @@
 import kotlinx.cli.*
 import kotlinx.coroutines.*
+import mu.KotlinLogging
+import org.slf4j.event.Level
+import kotlin.system.exitProcess
 
-// TODO: add logging
+val logger = KotlinLogging.logger {}
 
 @OptIn(DelicateCoroutinesApi::class)
 @ExperimentalCli
@@ -25,6 +28,7 @@ fun main(args: Array<String>) {
             val listener = Listener(callback, (interval ?: 60000).toLong())
             GlobalScope.launch {
                 println(listener.fetchCurrentIp())
+                exitProcess(0)
             }
         }
     }
@@ -34,6 +38,7 @@ fun main(args: Array<String>) {
             val listener = Listener(callback, (interval ?: 60000).toLong())
             GlobalScope.launch {
                 listener.updateIp(listener.fetchCurrentIp())
+                exitProcess(0)
             }
         }
     }
@@ -43,6 +48,7 @@ fun main(args: Array<String>) {
             val listener = Listener(callback, (interval ?: 60000).toLong())
             GlobalScope.launch {
                 listener.listen()
+                exitProcess(0)
             }
         }
     }
@@ -74,7 +80,5 @@ WantedBy=multi-currentUser.target" > /lib/systemd/system/ipctl.service""".trimMa
     val service = Service()
     parser.subcommands(ip, update, listen, service)
 
-    println("before")
     parser.parse(args)
-    println("after")
 }

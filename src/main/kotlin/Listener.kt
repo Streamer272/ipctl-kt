@@ -10,25 +10,30 @@ class Listener(private val callback: String, private val interval: Long = 60000)
     var currentIp = ""
 
     suspend fun fetchCurrentIp(): String {
-        val response = client.get("https://api.ipify.org")
+        val response = client.get("http://api.ipify.org")
         return response.body()
     }
 
     fun updateIp(newIp: String) {
-        val result = shell.run(callback.replace("\$IP\$", newIp))
+        logger.info { "Updating IP" }
+        val result = shell.run(callback.replace("\$IP", newIp))
         if (result.isSuccess)
             currentIp = newIp
 
+        logger.info { "Changed IP to $newIp" }
         println(result.stdout)
     }
 
     suspend fun listen() {
         while (true) {
+            logger.info { "Fetching IP" }
             val newIp = fetchCurrentIp()
+            logger.info { "Old IP: $currentIp, New IP: $newIp" }
 
-            if (newIp != currentIp && newIp.isNotEmpty()) {
+            if (newIp != currentIp && newIp.isNotEmpty())
                 updateIp(newIp)
-            }
+            else
+                logger.info { "IP not changed" }
 
             Thread.sleep(interval)
         }
