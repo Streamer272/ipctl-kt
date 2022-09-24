@@ -4,7 +4,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 
-class Listener(private val callback: String, private val interval: Long = 60000) {
+class Listener(private val callback: String = "", private val interval: Long = 60000) {
     private val client = HttpClient(CIO)
     private val shell = Shell("sh")
     var currentIp = ""

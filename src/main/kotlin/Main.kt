@@ -1,7 +1,8 @@
 import kotlinx.cli.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import org.slf4j.event.Level
 import kotlin.system.exitProcess
 
 val logger = KotlinLogging.logger {}
@@ -10,22 +11,10 @@ val logger = KotlinLogging.logger {}
 @ExperimentalCli
 fun main(args: Array<String>) {
     val parser = ArgParser("ipctl")
-    val callback by parser.option(
-        ArgType.String,
-        shortName = "c",
-        fullName = "callback",
-        description = "Callback to execute"
-    ).required()
-    val interval by parser.option(
-        ArgType.Int,
-        shortName = "i",
-        fullName = "interval",
-        description = "Interval to execute callback"
-    )
 
     class Ip : Subcommand("ip", "Get IP address") {
         override fun execute() {
-            val listener = Listener(callback, (interval ?: 60000).toLong())
+            val listener = Listener()
             GlobalScope.launch {
                 println(listener.fetchCurrentIp())
                 exitProcess(0)
@@ -34,8 +23,15 @@ fun main(args: Array<String>) {
     }
 
     class Update : Subcommand("update", "Update IP") {
+        val callback by option(
+            ArgType.String,
+            shortName = "c",
+            fullName = "callback",
+            description = "Callback to execute"
+        ).required()
+
         override fun execute() {
-            val listener = Listener(callback, (interval ?: 60000).toLong())
+            val listener = Listener(callback)
             GlobalScope.launch {
                 listener.updateIp(listener.fetchCurrentIp())
                 exitProcess(0)
@@ -44,6 +40,19 @@ fun main(args: Array<String>) {
     }
 
     class Listen : Subcommand("listen", "Listen for IP change") {
+        val callback by option(
+            ArgType.String,
+            shortName = "c",
+            fullName = "callback",
+            description = "Callback to execute"
+        ).required()
+        val interval by option(
+            ArgType.Int,
+            shortName = "i",
+            fullName = "interval",
+            description = "Interval to execute callback"
+        )
+
         override fun execute() {
             val listener = Listener(callback, (interval ?: 60000).toLong())
             GlobalScope.launch {
@@ -54,6 +63,19 @@ fun main(args: Array<String>) {
     }
 
     class Service : Subcommand("service", "Setup a service") {
+        val callback by option(
+            ArgType.String,
+            shortName = "c",
+            fullName = "callback",
+            description = "Callback to execute"
+        ).required()
+        val interval by option(
+            ArgType.Int,
+            shortName = "i",
+            fullName = "interval",
+            description = "Interval to execute callback"
+        )
+
         override fun execute() {
             println(
                 """echo "[Unit]
@@ -66,7 +88,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=`whoami`
-ExecStart=ipctl --callback '$callback' listen
+ExecStart=ipctl listen --callback '$callback' --interval $interval
 
 [Install]
 WantedBy=multi-currentUser.target" > /lib/systemd/system/ipctl.service""".trimMargin()
