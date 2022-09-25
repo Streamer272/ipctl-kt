@@ -15,25 +15,25 @@ class Listener(private val callback: String = "", private val interval: Long = 6
     }
 
     fun updateIp(newIp: String) {
-        logger.info { "Updating IP" }
+        Logger.info("Updating IP")
         val result = shell.run(callback.replace("\$IP", newIp))
         if (result.isSuccess)
             currentIp = newIp
 
-        logger.info { "Changed IP to $newIp" }
+        Logger.info("Changed IP to $newIp")
         println(result.stdout)
     }
 
     suspend fun listen() {
         while (true) {
-            logger.info { "Fetching IP" }
+            Logger.info("Fetching IP")
             val newIp = fetchCurrentIp()
-            logger.info { "Old IP: $currentIp, New IP: $newIp" }
+            Logger.info("Old IP: $currentIp, New IP: $newIp")
 
             if (newIp != currentIp && newIp.isNotEmpty())
                 updateIp(newIp)
             else
-                logger.info { "IP not changed" }
+                Logger.info("IP not changed")
 
             Thread.sleep(interval)
         }

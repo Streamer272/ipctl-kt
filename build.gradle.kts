@@ -20,8 +20,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
     implementation("com.jaredrummler:ktsh:1.0.0")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
-    implementation("ch.qos.logback:logback-classic:1.4.1")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.3.1")
     testImplementation(kotlin("test"))
 }
 
