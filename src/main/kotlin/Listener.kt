@@ -16,7 +16,7 @@ class Listener(private val callback: String = "", private val interval: Long = 6
 
     fun updateIp(newIp: String) {
         Logger.info("Updating IP")
-        val result = shell.run(callback.replace("\$IP", newIp))
+        val result = shell.run(callback.replace("#IP", newIp))
         if (result.isSuccess)
             currentIp = newIp
 
